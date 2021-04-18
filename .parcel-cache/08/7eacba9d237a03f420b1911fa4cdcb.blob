@@ -1,0 +1,51 @@
+var _modelJs = require('./model.js');
+var _viewsRecipeViewJs = require('./views/recipeView.js');
+var _parcelHelpers = require("@parcel/transformer-js/lib/esmodule-helpers.js");
+var _viewsRecipeViewJsDefault = _parcelHelpers.interopDefault(_viewsRecipeViewJs);
+var _viewsSearchViewJs = require('./views/searchView.js');
+var _viewsSearchViewJsDefault = _parcelHelpers.interopDefault(_viewsSearchViewJs);
+var _viewsResultsViewJs = require('./views/resultsView.js');
+var _viewsResultsViewJsDefault = _parcelHelpers.interopDefault(_viewsResultsViewJs);
+var _viewsPaginationViewJs = require('./views/paginationView.js');
+var _viewsPaginationViewJsDefault = _parcelHelpers.interopDefault(_viewsPaginationViewJs);
+require('core-js/stable');
+require('regenerator-runtime');
+if (module.hot) {
+  module.hot.accept();
+}
+// https://forkify-api.herokuapp.com/v2
+// /////////////////////////////////////
+const controlRecipes = async () => {
+  try {
+    const id = window.location.hash.slice(1);
+    if (!id) return;
+    _viewsRecipeViewJsDefault.default.renderSpinner();
+    await _modelJs.loadRecipe(id);
+    // Rendering recipes
+    _viewsRecipeViewJsDefault.default.render(_modelJs.state.recipe);
+  } catch (err) {
+    _viewsRecipeViewJsDefault.default.renderError();
+  }
+};
+const controlSearchResults = async () => {
+  try {
+    _viewsResultsViewJsDefault.default.renderSpinner();
+    // get search query
+    const query = _viewsSearchViewJsDefault.default.getQuery();
+    if (!query) return;
+    // Load search result
+    await _modelJs.loadSearchResults(query);
+    // render results
+    _viewsResultsViewJsDefault.default.render(_modelJs.getSearchResultsPage());
+    // render initial pagination btns
+    _viewsPaginationViewJsDefault.default.render(_modelJs.state.search);
+  } catch (err) {
+    console.log(err);
+  }
+};
+// Subscriber
+const init = () => {
+  _viewsRecipeViewJsDefault.default.addHandlerRender(controlRecipes);
+  _viewsSearchViewJsDefault.default.addHandlerSearch(controlSearchResults);
+};
+init();
